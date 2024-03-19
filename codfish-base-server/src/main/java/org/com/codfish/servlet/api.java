@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.com.codfish.common.SnowflakeIdGenerator;
+import org.com.codfish.homeworkhandler.HandelerHomework;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -79,6 +80,28 @@ public class api extends HttpServlet {
 //		HomeWorkHandeler.registerClass("13800138000", "13800138000", "20230901", "1", response); 
 		
 //		response.getWriter().append("Served at api: ").append(request.getContextPath());
+//		Date now = new Date();
+//		
+//	    SimpleDateFormat sdfNowYear = new SimpleDateFormat("yyyy");
+//	    String nowYear = sdfNowYear.format(now);
+//        SimpleDateFormat sdfNowDate = new SimpleDateFormat("yyyyMMdd");
+//        String nowdate = sdfNowDate.format(now);
+//	    
+//	    int numNowYear = Integer.parseInt(nowYear); // 将字符串转换为整数
+//	    String currYear91 = nowYear + "0901";
+//	    String start;
+//	    String end;
+//	    if (numNowYear >=  Integer.parseInt(currYear91)) { // 当前日期 >= 9.1
+//	    	start = currYear91; // 开始时间取 今年的 91
+//	    	end = Integer.toString(numNowYear + 1) +  "0831"; // 结束时间取明年的8.31
+//	    } else {
+//	    	start = Integer.toString(numNowYear - 1) +  "0901"; // 结束时间取前1年的9.1
+//	    	end = nowYear +  "0831"; // 结束时间取前1年的9.1
+//	    }
+//	    
+//      System.out.println("nowYear\t" + nowYear + "|tnowDate\t" + nowdate + "|start\t" + start + "|end" + end); 
+//		System.out.println("compareTo\t" + nowdate.compareTo(start));//结果：1
+//		System.out.println("compareTo\t" + nowdate.compareTo(end));//结果：1
 	}
 
 	/**
@@ -103,13 +126,17 @@ public class api extends HttpServlet {
     	System.out.println("requestBody" + requestBody);	
     	// 处理接口转发
 		switch (apiParams) {
-			case "CFMPRGCL": 
-				HomeWorkHandeler.registerClass(requestBody, response); 
+			case "MPHWRJCL": 
+				HandelerHomework.registerClass(requestBody, response); 
 				break;
 		}
 		
 		
 		//下边都是测试代码
+		
+		//
+
+		
 //		Register.register("123");
 		
 		
