@@ -69,3 +69,9 @@ public class MPHWRJCL {
 		}
 
 }
+class ApiInput {
+	
+}
+class ApiOutput {
+	
+}

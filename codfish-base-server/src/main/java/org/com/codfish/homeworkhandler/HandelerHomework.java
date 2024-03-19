@@ -39,18 +39,17 @@ public class HandelerHomework {
 //		 System.out.println("classObj" + classObj);
 //		 System.out.println("teachObj" + teachObj);
 //		 System.out.println("stuObj" + stuObj);
-		 
-
-		
 	}
 	// 注册班级
 	public static void registerClass (String requestBody, HttpServletResponse response) {
+		// api 输入参数json转class
 		Gson gsinput = new Gson();
 		MPHWRJCL CFMPRGCL = gsinput.fromJson(requestBody, MPHWRJCL.class);
-		CFMPRGCL.setClassId();
+		CFMPRGCL.setClassId(); // 初始化班级ID
 		System.out.println("CFMPRGCL" + CFMPRGCL.toString());
 		
 //		ClassObj classObj = gsinput.fromJson(requestBody, ClassObj.class);
+		// 获取班级是否重复注册
 		List classList = getClassList("schoolName",CFMPRGCL.getSchoolName(), CFMPRGCL.getClassName(), CFMPRGCL.getTeacherId(), "");
 		
 		System.out.println("query classList res\n" + classList + classList.size());
@@ -66,7 +65,7 @@ public class HandelerHomework {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {
+		} else { // 注册班级
 			SqlCon sc;
 			try {
 				sc = new SqlCon();
@@ -74,9 +73,7 @@ public class HandelerHomework {
 	                    "(classId, schoolName, className, teacherId, createTime, modifyTime, startTime, endTime, stt) " +
 	                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				PreparedStatement preparedStatement = sc.getConnection().prepareStatement(insertQuery);
-	
 		         // 设置参数值
-
 		         preparedStatement.setString(1, CFMPRGCL.getClassId()); // 班级唯一ID 随机创建
 		         preparedStatement.setString(2, CFMPRGCL.getSchoolName()); // 学校名称 输入
 		         preparedStatement.setString(3, CFMPRGCL.getClassName()); // 班级名称 输入
@@ -87,43 +84,55 @@ public class HandelerHomework {
 		         preparedStatement.setString(8, timeMaker("semeEnd")); // 结束时间
 		         preparedStatement.setString(9, "1");
 	
-		         // 执行插入操作
+		         // 执行 插入数据
 		         int rowsInserted = preparedStatement.executeUpdate();
 		         if (rowsInserted > 0) {
-		             System.out.println("A new record was inserted successfully.");
+		        	 // TODO注册结果通知，接口返回
 		         }
 		         sc.closeConn();
 		         preparedStatement.close();
+		         
 			} catch (ClassNotFoundException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+	 			ErrReturnObj err = new ErrReturnObj();
+				err.setRetcode("SERV0002");
+				err.setRetmsg("注册失败系统内部错误");
+				Gson gson = new Gson();
+				String jsonStr = gson.toJson(err);
+				try {
+					publicReturn(response, jsonStr);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
+	
 	static List getClassList (String type, String schoolName, String className, String teacherId, String classId) {
 		List<ObjClass> classObjList = new ArrayList<>();
+		// 查询class 状态正常的班级
+		String querySql = null;
+		if (type == "schoolName") { // 根据校+班级名称查找状态正常的班级
+			querySql = 
+					"SELECT * FROM t_hw_class_inf WHERE schoolName='" + classObj.getSchoolName() + "'"
+					+ " AND className='" + classObj.getClassName() + "'"
+					+ " AND '" + timeMaker("currentDate") +"' >= startTime"
+					+ " AND '" + timeMaker("currentDate") +"' <= endTime"
+					+ " AND stt='1';";	
+		} else if (type == "classId") { // 根据班级ID查找班级信息
+			querySql = 
+					"SELECT * FROM t_hw_class_inf WHERE classId='" + classId + "'"
+					+ " AND '" + timeMaker("currentDate") +"' >= startTime"
+					+ " AND '" + timeMaker("currentDate") +"' <= endTime"
+					+ " AND stt='1';";
+		} else if (type == "all" ) { // 根据teacherId查找班级信息
+			querySql = "SELECT * FROM t_hw_class_inf WHERE teacherId='" + teacherId + "';";
+		}
+		System.out.println("querySql\n" + querySql);
 		try {
-			SqlCon sc = new SqlCon();
-			// 查询class 状态正常的班级
-			String querySql = null;
-			if (type == "schoolName") { // 根据校+班级名称查找状态正常的班级
-				querySql = 
-						"SELECT * FROM t_hw_class_inf WHERE schoolName='" + classObj.getSchoolName() + "'"
-						+ " AND className='" + classObj.getClassName() + "'"
-						+ " AND '" + timeMaker("currentDate") +"' >= startTime"
-						+ " AND '" + timeMaker("currentDate") +"' <= endTime"
-						+ " AND stt='1';";	
-			} else if (type == "classId") { // 根据班级ID查找班级信息
-				querySql = 
-						"SELECT * FROM t_hw_class_inf WHERE classId='" + classId + "'"
-						+ " AND '" + timeMaker("currentDate") +"' >= startTime"
-						+ " AND '" + timeMaker("currentDate") +"' <= endTime"
-						+ " AND stt='1';";
-			} else if (type == "all" ) { // 根据teacherId查找班级信息
-				querySql = "SELECT * FROM t_hw_class_inf WHERE teacherId='" + teacherId + "';";
-			}
-
-			System.out.println("querySql\n" + querySql);
+			SqlCon sc = new SqlCon();	
 			ResultSet rs = sc.query(querySql);
 			while (rs.next()) {
 				ObjClass classObj= new ObjClass();
