@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.com.codfish.common.SnowflakeIdGenerator;
 import org.com.codfish.homeworkhandler.HandelerHomework;
+import org.com.codfish.homeworkhandler.MPHWRJCL;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -27,21 +28,23 @@ import com.google.gson.JsonElement;
 @WebServlet("/api")
 public class api extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public api() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public api() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		//		Register.register("123");
+		// Register.register("123");
 //		System.out.println("doGet request:\n"+request.toString());
 //		System.out.println("doGet request:\n"+request.getRequestURI());
 //		System.out.println("doGet request:\n"+request.getContextPath());
@@ -56,8 +59,7 @@ public class api extends HttpServlet {
 //		    }
 //		    String requestBody = buffer.toString();
 //		    System.out.println("--------> doget request json is :" + requestBody);
-		
-		
+
 //		request.setCharacterEncoding("UTF-8");
 //		StringBuilder buffer = new StringBuilder();
 //	    BufferedReader reader = request.getReader();
@@ -76,9 +78,9 @@ public class api extends HttpServlet {
 		/**
 		 * test api
 		 */
-		
+
 //		HomeWorkHandeler.registerClass("13800138000", "13800138000", "20230901", "1", response); 
-		
+
 //		response.getWriter().append("Served at api: ").append(request.getContextPath());
 //		Date now = new Date();
 //		
@@ -105,41 +107,40 @@ public class api extends HttpServlet {
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8"); // 设置请求头U8
-	    Date date = new Date();
-	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSSS");
-	    String formattedDate = sdf.format(date);
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSSS");
+		String formattedDate = sdf.format(date);
 		String apiParams = request.getParameter("apiName"); // 获取请求接口
-		System.out.println(formattedDate + "\tdoPost request apiName:\t"+apiParams);
+		System.out.println(formattedDate + "\tdoPost request apiName:\t" + apiParams);
 		// 请求参数转字符串
 		StringBuilder buffer = new StringBuilder();
-	    BufferedReader reader = request.getReader();
-	    String line;
-	    while ((line = reader.readLine()) != null) {
-	        buffer.append(line);
-	    }
-	    String requestBody = buffer.toString();
-    	System.out.println("requestBody" + requestBody);	
-    	// 处理接口转发
-		switch (apiParams) {
-			case "MPHWRJCL": 
-				HandelerHomework.registerClass(requestBody, response); 
-				break;
+		BufferedReader reader = request.getReader();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			buffer.append(line);
 		}
-		
-		
-		//下边都是测试代码
-		
+		String requestBody = buffer.toString();
+		System.out.println("requestBody" + requestBody);
+		// 处理接口转发
+		switch (apiParams) {
+		case "MPHWRJCL":
+			MPHWRJCL.run(requestBody, response);
+			break;
+		}
+
+		// 下边都是测试代码
+
 		//
 
-		
 //		Register.register("123");
-		
-		
+
 //		StringBuilder buffer = new StringBuilder();
 //	    BufferedReader reader = request.getReader();
 //	    String line;
@@ -157,7 +158,7 @@ public class api extends HttpServlet {
 //        String formattedDate = sdf.format(date);
 //        System.out.println(formattedDate + "\tdoPost request apiName:\t"+request.getParameter("apiName"));
 //	    System.out.println(formattedDate + "\tdoPost request apiParams:\t " + requestBody);
-	    
+
 //		doGet(request, response);
 //	    Gson gson = new Gson();
 //	    JsonElement jsonElement = gson.fromJson(requestBody, JsonElement.class);
@@ -178,27 +179,34 @@ public class api extends HttpServlet {
 //	    response.setCharacterEncoding("utf-8");
 //	    response.getWriter().append("");
 	}
+
 	class DemoId {
 		private String ID = null;
 		private String RETCODE = null;
 		private String RETMSG = null;
-	    public void setId(String id) {
-	        this.ID = id;
-	    }
-	    public String getId() {
-	        return ID;
-	    }
-	    public void setRetcode(String retcode) {
-	        this.RETCODE = retcode;
-	    }
-	    public String getRetcode() {
-	        return RETCODE;
-	    }
-	    public void setRetmsg(String retmsg) {
-	        this.RETMSG = retmsg;
-	    }
-	    public String getRetmsg() {
-	        return RETMSG;
-	    }
+
+		public void setId(String id) {
+			this.ID = id;
+		}
+
+		public String getId() {
+			return ID;
+		}
+
+		public void setRetcode(String retcode) {
+			this.RETCODE = retcode;
+		}
+
+		public String getRetcode() {
+			return RETCODE;
+		}
+
+		public void setRetmsg(String retmsg) {
+			this.RETMSG = retmsg;
+		}
+
+		public String getRetmsg() {
+			return RETMSG;
+		}
 	}
 }

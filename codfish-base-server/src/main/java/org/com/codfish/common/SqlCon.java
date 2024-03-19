@@ -15,7 +15,6 @@ public class SqlCon {
 	public SqlCon () throws ClassNotFoundException, SQLException {
 		Class.forName(JDBC_DRIVER);
 		conn = DriverManager.getConnection(CODFISH_DATABASE_URL, CODFISH_DATABASE_NAME, CODFISH_DATABASE_PWD);
-		System.out.println("SqlCon init:\n");
 	}
 	
 	public ResultSet query (String querySql) throws SQLException {
