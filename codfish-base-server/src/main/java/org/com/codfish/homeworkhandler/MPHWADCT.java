@@ -15,7 +15,7 @@ public class MPHWADCT {
 		ApiInput apiInput = gsinput.fromJson(requestBody, ApiInput.class);
 		
 		// 加入的班级状态不正常，不允许注册
-		List<ObjClass> classSttList = HwSql.getTeachListByClassId(apiInput.getClassId());
+		List<ObjClass> classSttList = HwSql.getClassListByClassId(apiInput.getClassId());
 		if (classSttList == null) {
 			HwHttps.hwHttpResponeErr(response);
 			return ;
@@ -46,12 +46,13 @@ public class MPHWADCT {
 			return;
 		}
 		
+		// 查询老师已经加入的班级数量
 		List<ObjClass> teachClassList = HwSql.getClassListByTeacherId(apiInput.getTeacherId());
 		if (teachClassList == null) {
 			HwHttps.hwHttpResponeErr(response);
 			return;
 		}
-		if (teachClassList.size() >= 5) {
+		if (teachClassList.size() >= 5) { // 一个老师不允许加入超过5个班级
 			String errCode = "SERV000";
 			String ErrMsg = "加入班级失败，课程数量超过5";
 			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
