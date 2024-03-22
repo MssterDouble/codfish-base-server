@@ -1,6 +1,5 @@
 package org.com.codfish.homeworkhandler;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -13,21 +12,19 @@ import org.com.codfish.servlet.ErrReturnObj;
 
 import com.google.gson.Gson;
 
+/**
+ * 注册班级
+ */
 public class MPHWRJCL {
 	public static void run(String requestBody, HttpServletResponse response) {
 		Gson gsinput = new Gson();
 		ApiInput apiInput = gsinput.fromJson(requestBody, ApiInput.class);
-		
-		List classList =  HwSql.getClassList("schoolName", apiInput.getSchoolName(), apiInput.getClassName(), apiInput.getTeacherId(), "");
+		List<ObjClass> classList =  HwSql.getClassList("schoolName", apiInput.getSchoolName(), apiInput.getClassName(), apiInput.getTeacherId(), "", "");
 		System.out.println("classList . size" + classList.size());
 		if (classList.size() > 0) { // 如果已经注册过班级就不让注册了
-			
-			ErrReturnObj err = new ErrReturnObj();
-			err.setRetcode("SERV0001");
-			err.setRetmsg("班级重复注册");
-			Gson gson = new Gson();
-			String jsonStr = gson.toJson(err);
-			HwHttps.hwHttpRespone(response, jsonStr);
+			String errCode = "SERV0001";
+			String ErrMsg = "班级重复注册";
+			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
 		} else {
 			SqlCon sc; // 注册班级
 			try {
@@ -64,126 +61,37 @@ public class MPHWRJCL {
 				preparedStatement.close();
 
 			} catch (ClassNotFoundException | SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				ErrReturnObj err = new ErrReturnObj();
-				err.setRetcode("SERV0002");
-				err.setRetmsg("注册失败系统内部错误");
-				Gson gson = new Gson();
-				String jsonStr = gson.toJson(err);
-				HwHttps.hwHttpRespone(response, jsonStr);
+				String errCode = "SERV0002";
+				String ErrMsg = "注册失败系统内部错误";
+				HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
 			}
 		}
 	}
-
-	private String classId;
-	private String schoolName;
-	private String className;
-	private String teacherId;
-	private String createTime;
-	private String modifyTime;
-	private String startTime;
-	private String endTime;
-	private String stt;
-
-	public String getClassId() {
-		return classId;
+	class ApiInput {
+		private String schoolName;
+		private String className;
+		private String teacherId;
+		public String getSchoolName() {
+			return schoolName;
+		}
+		public void setSchoolName(String schoolName) {
+			this.schoolName = schoolName;
+		}
+		public String getClassName() {
+			return className;
+		}
+		public void setClassName(String className) {
+			this.className = className;
+		}
+		public String getTeacherId() {
+			return teacherId;
+		}
+		public void setTeacherId(String teacherId) {
+			this.teacherId = teacherId;
+		}
 	}
 
-	public void setClassId() {
-		SnowflakeIdGenerator worker = new SnowflakeIdGenerator(1, 1, 1);
-		this.classId = String.valueOf(worker.nextId());
-	}
+	class ApiOutput {
 
-	public String getSchoolName() {
-		return schoolName;
 	}
-
-	public void setSchoolName(String schoolName) {
-		this.schoolName = schoolName;
-	}
-
-	public String getClassName() {
-		return className;
-	}
-
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
-	public String getTeacherId() {
-		return teacherId;
-	}
-
-	public void setTeacherId(String teacherId) {
-		this.teacherId = teacherId;
-	}
-
-	public String getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(String createTime) {
-		this.createTime = createTime;
-	}
-
-	public String getModifyTime() {
-		return modifyTime;
-	}
-
-	public void setModifyTime(String modifyTime) {
-		this.modifyTime = modifyTime;
-	}
-
-	public String getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(String startTime) {
-		this.startTime = startTime;
-	}
-
-	public String getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(String endTime) {
-		this.endTime = endTime;
-	}
-
-	public String getStt() {
-		return stt;
-	}
-
-	public void setStt(String stt) {
-		this.stt = stt;
-	}
-}
-
-class ApiInput {
-	private String schoolName;
-	private String className;
-	private String teacherId;
-	public String getSchoolName() {
-		return schoolName;
-	}
-	public void setSchoolName(String schoolName) {
-		this.schoolName = schoolName;
-	}
-	public String getClassName() {
-		return className;
-	}
-	public void setClassName(String className) {
-		this.className = className;
-	}
-	public String getTeacherId() {
-		return teacherId;
-	}
-	public void setTeacherId(String teacherId) {
-		this.teacherId = teacherId;
-	}
-}
-
-class ApiOutput {
-
 }

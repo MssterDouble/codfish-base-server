@@ -18,4 +18,25 @@ public class HwHttps {
 			e.printStackTrace();
 		}
 	}
+	
+	static void hwHttpResponeErr(HttpServletResponse response) {
+		String errCode = "SERV0002";
+		String ErrMsg = "注册失败系统内部错误";
+		hwHttpResponeErr(response, errCode, ErrMsg);
+	}
+	
+	static void hwHttpResponeErr(HttpServletResponse response, String errCode, String errMsg) {
+		response.setCharacterEncoding("utf-8");
+		try {
+			ErrReturnObj err = new ErrReturnObj();
+			err.setRetcode(errCode);
+			err.setRetmsg(errMsg);
+			Gson gson = new Gson();
+			String jsonStr = gson.toJson(err);
+			response.getWriter().append(jsonStr);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

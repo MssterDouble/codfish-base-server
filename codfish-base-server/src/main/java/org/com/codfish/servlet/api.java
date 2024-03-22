@@ -16,7 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.com.codfish.common.SnowflakeIdGenerator;
-import org.com.codfish.homeworkhandler.HandelerHomework;
+import org.com.codfish.homeworkhandler.MPHWADCS;
+import org.com.codfish.homeworkhandler.MPHWADCT;
 import org.com.codfish.homeworkhandler.MPHWRJCL;
 
 import com.google.gson.Gson;
@@ -132,6 +133,9 @@ public class api extends HttpServlet {
 		switch (apiParams) {
 		case "MPHWRJCL":
 			MPHWRJCL.run(requestBody, response);
+			break;
+		case "MPHWADCT":
+			MPHWADCT.run(requestBody, response);
 			break;
 		}
 
