@@ -1,15 +1,15 @@
 package org.com.codfish.homeworkhandler;
 
 public class ObjClass {
-	String classId;
-	String schoolName;
-	String className;
-	String teacherId;
-	String createTime;
-	String modifyTime;
-	String startTime;
-	String endTime;
-	String stt;
+	private String classId;
+	private String schoolName;
+	private String className;
+	private String teacherId;
+	private String createTime;
+	private String modifyTime;
+	private String startTime;
+	private String endTime;
+	private String stt;
 
 	public String getClassId() {
 		return classId;

@@ -33,13 +33,24 @@ public class MPHWRJCL {
 			HwHttps.hwHttpResponeErr(response, errCode, ErrMsg);
 			return;
 		}
-		// 查询这个老师加入班级的数量超标、注册班级的数量超标
-//		TODO
+
+		// 查询老师已经加入的班级数量
+		List<ObjClass> teachClassList = HwSql.getClassListByTeacherId(apiInput.getTeacherId());
+		if (teachClassList == null) {
+			HwHttps.hwHttpResponeErr(response);
+			return;
+		}
+		if (teachClassList.size() >= 5) { // 一个老师不允许加入超过5个班级
+			String errCode = "SERV000";
+			String ErrMsg = "加入班级失败，课程数量超过5";
+			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
+			return;
+		}
 		// 创建班级
+		// 雪花算法创建班级ID
 		SnowflakeIdGenerator worker = new SnowflakeIdGenerator(1, 1, 1);
 		String tempClassId = String.valueOf(worker.nextId());
-		int addClassResult = HwSql.addClass(tempClassId, apiInput.getSchoolName(), apiInput.getClassName(),
-				apiInput.getTeacherId());
+		int addClassResult = HwSql.addClass(tempClassId, apiInput.getSchoolName(), apiInput.getClassName(), apiInput.getTeacherId());
 		if (addClassResult == 1) {
 			HwHttps.hwHttpResponeErr(response);
 			return;

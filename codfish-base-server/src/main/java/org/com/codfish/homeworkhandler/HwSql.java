@@ -64,30 +64,29 @@ public class HwSql {
 	 */
 	public static List<ObjClass> getClassListByStuId(String stuendId) {
 		List<ObjClass> classList = null;
-		List<String> stuIdList = new ArrayList<>(); // stu 已经加入的班级的ID集合
-		String querySql = "SELECT * FROM t_hw_teach_inf WHERE " 
+		List<String> stuClassIdList = new ArrayList<>(); // stu 已经加入的班级的ID集合
+		String querySql = "SELECT * FROM t_hw_stu_inf WHERE " 
 				+ "stuendId='" + stuendId + "'"
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime" 
 				+ " AND stt='1';";
 		System.out.println("querySql:\t" + querySql);
-		
 		try {
 			SqlCon sc = new SqlCon();
 			ResultSet rs = sc.query(querySql);
 			while (rs.next()) {
-				stuIdList.add(rs.getString(2));
+				stuClassIdList.add(rs.getString(2));
 			}
 			rs.close();
 			sc.closeConn();
-			String strStuIdList = String.join(",", stuIdList);
-			if (stuIdList.size() > 0) {
+			String strStuClassIdList = String.join(",", stuClassIdList);
+			if (stuClassIdList.size() > 0) {
 				// 根据classId合集查询 全部classId的状态正常的
-				String querySqlClass = "SELECT * FROM t_hw_class_inf WHERE classId IN (" + strStuIdList + ")" 
+				String querySqlClass = "SELECT * FROM t_hw_class_inf WHERE classId IN (" + strStuClassIdList + ")" 
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime"
 						+ " AND stt='1';";
-				classList = getClassListBySql(querySqlClass);	
+				classList = getClassList(querySqlClass);	
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -101,37 +100,35 @@ public class HwSql {
 	 */
 	public static List<ObjClass> getClassListByTeacherId (String teacherId) {
 		List<ObjClass> classList = null;
-		List<String> teachIdList = new ArrayList<>(); // teacehr 已经加入的班级的ID集合
+		List<String> teachClassIdList = new ArrayList<>(); // teacehr 已经加入的班级的ID集合
 		String querySql = "SELECT * FROM t_hw_teach_inf WHERE " 
 				+ "teacherId='" + teacherId + "'"
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime" 
 				+ " AND stt='1';";
 		System.out.println("querySql:\t" + querySql);
-		
 		try {
 			SqlCon sc = new SqlCon();
 			ResultSet rs = sc.query(querySql);
 			while (rs.next()) {
-				teachIdList.add(rs.getString(5));
+				teachClassIdList.add(rs.getString(5));
 			}
 			rs.close();
 			sc.closeConn();
-			String strStuIdList = String.join(",", teachIdList);
-			if (teachIdList.size() > 0) {
+			String strTeachClassIdList = String.join(",", teachClassIdList);
+			if (teachClassIdList.size() > 0) {
 				// 根据classId合集查询 全部classId的状态正常的
-				String querySqlClass = "SELECT * FROM t_hw_class_inf WHERE classId IN (" + strStuIdList + ")" 
+				String querySqlClass = "SELECT * FROM t_hw_class_inf WHERE classId IN (" + strTeachClassIdList + ")" 
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime"
 						+ " AND stt='1';";
-				classList = getClassListBySql(querySqlClass);	
+				classList = getClassList(querySqlClass);	
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
 		return classList;
 	}
-	
 	/**
 	 * 根据学校+班级名称查询学校列表
 	 * @param schoolName
@@ -150,7 +147,6 @@ public class HwSql {
 		classObjList = getClassList(querySql);
 		return classObjList;
 	}
-	
 	/**
 	 *  输入SQL语句查询 teacher 列表
 	 * @param querySql sql 语句
@@ -164,6 +160,16 @@ public class HwSql {
 			while (rs.next()) {
 				// TODO  赋值
 				ObjTeacher objTeacher = new ObjTeacher();
+				objTeacher.setTeacherId(rs.getString(1));
+				objTeacher.setTeacherName(rs.getString(2));
+				objTeacher.setTelephone(rs.getString(3));
+				objTeacher.setProgram(rs.getString(4));
+				objTeacher.setClassId(rs.getString(5));
+				objTeacher.setCreateTime(rs.getString(6));
+				objTeacher.setModifyTime(rs.getString(7));
+				objTeacher.setStartTime(rs.getString(8));
+				objTeacher.setEndTime(rs.getString(9));
+				objTeacher.setStt(rs.getString(10));
 				teacherList.add(objTeacher);
 			}
 			rs.close();
@@ -187,7 +193,13 @@ public class HwSql {
 			while (rs.next()) {
 				// TODO  赋值
 				ObjStudent objStu = new ObjStudent();
-				
+				objStu.setStudentId(rs.getString(1));
+				objStu.setClassId(rs.getString(2));
+				objStu.setCreateTime(rs.getString(3));
+				objStu.setModifyTime(rs.getString(4));
+				objStu.setStartTime(rs.getString(5));
+				objStu.setEndTime(rs.getString(6));
+				objStu.setStt(rs.getString(7));
 				stuList.add(objStu);
 			}
 			rs.close();
@@ -306,8 +318,27 @@ public class HwSql {
 		}
 		return resultStt;
 	}
-	public static int delClass () {
+	
+	/**
+	 *  跟俊classId 删除classID
+	 * @param classId
+	 * @return 0-成功；1-失败；
+	 */
+	public static int delClass (String classId) {
 		int resultStt = 0;
+		try {
+			SqlCon sc = new SqlCon();
+			String delSql = "DELETE FROM t_hw_class_inf WHERE classId ='" + classId + "'";;
+			PreparedStatement preparedStatement = sc.getConnection().prepareStatement(delSql);
+			// 执行 插入数据1成功0失败
+			int rowsInserted = preparedStatement.executeUpdate();
+			resultStt = rowsInserted > 0 ? 0 : 1;
+			sc.closeConn();
+			preparedStatement.close();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+			resultStt = 1;
+		}
 		return resultStt;
 	}
 	public static int delTeacher () {
@@ -329,101 +360,5 @@ public class HwSql {
 	public static int modifyStuend () {
 		int resultStt = 0;
 		return resultStt;
-	}
-	
-	
-	/***********************/
-	static List<ObjClass> getClassListBySql (String querySql) {
-		List<ObjClass> classObjList = new ArrayList<>();
-		try {
-			SqlCon sc = new SqlCon();
-			ResultSet rs = sc.query(querySql);
-			while (rs.next()) {
-				ObjClass classObj = new ObjClass();
-				classObj.setClassId(rs.getString(1));
-				classObj.setSchoolName(rs.getString(2));
-				classObj.setClassName(rs.getString(3));
-				classObj.setTeacherId(rs.getString(4));
-				classObj.setCreateTime(rs.getString(5));
-				classObj.setModifyTime(rs.getString(6));
-				classObj.setStartTime(rs.getString(7));
-				classObj.setEndTime(rs.getString(8));
-				classObj.setStt(rs.getString(9));
-				classObjList.add(classObj);
-			}
-			rs.close();
-			sc.closeConn();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return classObjList;
-	}
-
-
-	static List<ObjClass> getClassById (String classId, String type) {
-		List<ObjClass> classObjList = null;
-		String querySql = null;
-		if ("all".equals(type)) {
-			querySql = "SELECT * FROM t_hw_class_inf WHERE classId='" + classId + "';";
-		} else {
-			querySql = "SELECT * FROM t_hw_class_inf WHERE classId='" + classId + "'" 
-					+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
-					+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime"
-					+ " AND stt='1';";
-		}
-		try {
-			SqlCon sc = new SqlCon();
-			ResultSet rs = sc.query(querySql);
-			while (rs.next()) {
-				ObjClass classObj = new ObjClass();
-				classObj.setClassId(rs.getString(1));
-				classObj.setSchoolName(rs.getString(2));
-				classObj.setClassName(rs.getString(3));
-				classObj.setTeacherId(rs.getString(4));
-				classObj.setCreateTime(rs.getString(5));
-				classObj.setModifyTime(rs.getString(6));
-				classObj.setStartTime(rs.getString(7));
-				classObj.setEndTime(rs.getString(8));
-				classObj.setStt(rs.getString(9));
-				classObjList.add(classObj);
-			}
-			rs.close();
-			sc.closeConn();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return classObjList;
-	}
-	
-	static List<ObjTeacher> getTeacherList (String type, String teacherId, String program) {
-		List<ObjTeacher> teacherList = null;
-		String querySql = "SELECT * FROM t_hw_teach_inf WHERE ";
-		if (type == "schoolName") { // 根据校+班级名称查找状态正常的班级
-
-		} else if (type == "program") { // 根据班级ID查找班级信息
-			querySql += "teacherId='" + teacherId
-					+ " AND 'program=" + program 
-					+ " AND stt='1';";
-		} else if (type == "active") { // 根据teacherId查找状态正常的
-			querySql += "teacherId='" + teacherId
-					+ " AND stt='1';";
-		} else if (type == "all") { // 根据teacherId查找全部记录
-			querySql += "teacherId='" + teacherId + "';";
-		}
-		System.out.println("querySql:\t" + querySql);
-		try {
-			SqlCon sc = new SqlCon();
-			ResultSet rs = sc.query(querySql);
-			while (rs.next()) {
-				// TODO  赋值
-				ObjTeacher objTeacher = new ObjTeacher();
-				teacherList.add(objTeacher);
-			}
-			rs.close();
-			sc.closeConn();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return teacherList;
 	}
 }
