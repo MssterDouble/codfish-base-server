@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.com.codfish.common.SystemLog;
 import org.com.codfish.servlet.ErrReturnObj;
 
 import com.google.gson.Gson;
@@ -14,7 +15,7 @@ public class HwHttps {
 		try {
 			response.getWriter().append(result);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			SystemLog.printLog("HwHttps hwHttpRespone IoErr");
 			e.printStackTrace();
 		}
 	}
@@ -35,7 +36,7 @@ public class HwHttps {
 			String jsonStr = gson.toJson(err);
 			response.getWriter().append(jsonStr);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			SystemLog.printLog("HwHttps hwHttpResponeErr IoErr");
 			e.printStackTrace();
 		}
 	}

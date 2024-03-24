@@ -14,8 +14,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.com.codfish.common.SnowflakeIdGenerator;
+import org.com.codfish.common.SystemLog;
 import org.com.codfish.homeworkhandler.MPHWADCS;
 import org.com.codfish.homeworkhandler.MPHWADCT;
 import org.com.codfish.homeworkhandler.MPHWRJCL;
@@ -56,11 +58,9 @@ public class api extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8"); // 设置请求头U8
-		Date date = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSSS");
-		String formattedDate = sdf.format(date);
 		String apiParams = request.getParameter("apiName"); // 获取请求接口
-		System.out.println(formattedDate + "\tdoPost request apiName:\t" + apiParams);
+		HttpSession session = request.getSession();
+		SystemLog.setSssionId(session.getId());
 		// 请求参数转字符串
 		StringBuilder buffer = new StringBuilder();
 		BufferedReader reader = request.getReader();
@@ -69,7 +69,8 @@ public class api extends HttpServlet {
 			buffer.append(line);
 		}
 		String requestBody = buffer.toString();
-		System.out.println("requestBody" + requestBody);
+		String requestLog = "apiParams=" + apiParams + "|" + requestBody + "|";
+		SystemLog.printLog(requestLog);
 		// 处理接口转发
 		switch (apiParams) {
 		case "MPHWRJCL": // 注册班级
@@ -79,7 +80,7 @@ public class api extends HttpServlet {
 			MPHWADCT.run(requestBody, response);
 			break;
 		case "MPHWADCS": // 学生加入班级
-			MPHWADCT.run(requestBody, response);
+			MPHWADCS.run(requestBody, response);
 			break;
 		}
 	}

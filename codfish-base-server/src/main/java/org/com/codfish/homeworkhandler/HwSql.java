@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.com.codfish.common.SnowflakeIdGenerator;
 import org.com.codfish.common.SqlCon;
+import org.com.codfish.common.SystemLog;
 import org.com.codfish.servlet.ErrReturnObj;
 
 import com.google.gson.Gson;
@@ -19,7 +20,7 @@ public class HwSql {
 	 * @return List ObjClass
 	 */
 	public static List<ObjClass> getClassList (String querySql) {
-		 List<ObjClass> classList = null;
+		 List<ObjClass> classList = new ArrayList<>();
 			try {
 				SqlCon sc = new SqlCon();
 				ResultSet rs = sc.query(querySql);
@@ -39,7 +40,9 @@ public class HwSql {
 				rs.close();
 				sc.closeConn();
 			} catch (ClassNotFoundException | SQLException e) {
+				classList = null;
 				e.printStackTrace();
+				SystemLog.printLog("HwSql getClassList sqlerr");
 			}
 		 return classList;
 	}
@@ -51,9 +54,10 @@ public class HwSql {
 	public static List<ObjClass> getClassListByClassId(String classId) {
 		String queryClassList = "SELECT * FROM t_hw_class_inf WHERE " 
 				+ "classId='" + classId + "'"
-				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
-				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime" 
+				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>= startTime"
+				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<= endTime"
 				+ " AND stt='1';";
+		SystemLog.printLog("HwSql getClassListByClassId queryClassList |" + queryClassList);
 		List<ObjClass> classList = getClassList(queryClassList);
 		return classList;
 	}
@@ -62,15 +66,15 @@ public class HwSql {
 	 * @param studentId
 	 * @return 
 	 */
-	public static List<ObjClass> getClassListByStuId(String stuendId) {
-		List<ObjClass> classList = null;
+	public static List<ObjClass> getClassListByStuId(String studentId) {
+		List<ObjClass> classList = new ArrayList<>();
 		List<String> stuClassIdList = new ArrayList<>(); // stu 已经加入的班级的ID集合
 		String querySql = "SELECT * FROM t_hw_stu_inf WHERE " 
-				+ "stuendId='" + stuendId + "'"
+				+ "studentId='" + studentId + "'"
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime" 
 				+ " AND stt='1';";
-		System.out.println("querySql:\t" + querySql);
+		SystemLog.printLog("HwSql getClassListByStuId getStuClassIdListSql |" + querySql);
 		try {
 			SqlCon sc = new SqlCon();
 			ResultSet rs = sc.query(querySql);
@@ -86,9 +90,12 @@ public class HwSql {
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime"
 						+ " AND stt='1';";
+				SystemLog.printLog("HwSql getStrStuClassIdList sql |" + querySqlClass);
 				classList = getClassList(querySqlClass);	
 			}
 		} catch (ClassNotFoundException | SQLException e) {
+			classList = null;
+			SystemLog.printLog("HwSql getClassListByStuId sqlerr");
 			e.printStackTrace();
 		}
 		return classList;
@@ -99,14 +106,14 @@ public class HwSql {
 	 * @return List ObjClass 
 	 */
 	public static List<ObjClass> getClassListByTeacherId (String teacherId) {
-		List<ObjClass> classList = null;
+		List<ObjClass> classList = new ArrayList<>();
 		List<String> teachClassIdList = new ArrayList<>(); // teacehr 已经加入的班级的ID集合
 		String querySql = "SELECT * FROM t_hw_teach_inf WHERE " 
 				+ "teacherId='" + teacherId + "'"
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime" 
 				+ " AND stt='1';";
-		System.out.println("querySql:\t" + querySql);
+		SystemLog.printLog("HwSql getClassListByTeacherId queryteachClassIdListsql |" + querySql);
 		try {
 			SqlCon sc = new SqlCon();
 			ResultSet rs = sc.query(querySql);
@@ -122,9 +129,11 @@ public class HwSql {
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 						+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime"
 						+ " AND stt='1';";
+				SystemLog.printLog("HwSql getClassListByTeacherId querySqlClassSql |" + querySql);
 				classList = getClassList(querySqlClass);	
 			}
 		} catch (ClassNotFoundException | SQLException e) {
+			SystemLog.printLog("HwSql getClassListByTeacherId sqlerr");
 			e.printStackTrace();
 		}
 		return classList;
@@ -136,14 +145,14 @@ public class HwSql {
 	 * @return
 	 */
 	static List<ObjClass> getClassListByName(String schoolName, String className) {
-		List<ObjClass> classObjList = null;
+		List<ObjClass> classObjList = new ArrayList<>();
 		// 查询class 状态正常的班级
 		String querySql = "SELECT * FROM t_hw_class_inf WHERE schoolName='" + schoolName + "'"
 				+ " AND className='" + className + "'"
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime" 
 				+ " AND stt='1';";
-		System.out.println("querySql:\t" + querySql);
+		SystemLog.printLog("HwSql getClassListByName querySql |" + querySql);
 		classObjList = getClassList(querySql);
 		return classObjList;
 	}
@@ -153,7 +162,7 @@ public class HwSql {
 	 * @return List ObjTeacher
 	 */
 	public static List<ObjTeacher> getTeachList(String querySql) {
-		List<ObjTeacher> teacherList = null;
+		List<ObjTeacher> teacherList = new ArrayList<>();
 		try {
 			SqlCon sc = new SqlCon();
 			ResultSet rs = sc.query(querySql);
@@ -175,6 +184,7 @@ public class HwSql {
 			rs.close();
 			sc.closeConn();
 		} catch (ClassNotFoundException | SQLException e) {
+			SystemLog.printLog("HwSql getTeachList sqlerr");
 			e.printStackTrace();
 		}
 		return teacherList;
@@ -186,7 +196,7 @@ public class HwSql {
 	 * @return List ObjStudent
 	 */
 	public static List<ObjStudent> getStuList (String querySql) {
-		List<ObjStudent> stuList = null;
+		List<ObjStudent> stuList = new ArrayList<>();
 		try {
 			SqlCon sc = new SqlCon();
 			ResultSet rs = sc.query(querySql);
@@ -205,6 +215,7 @@ public class HwSql {
 			rs.close();
 			sc.closeConn();
 		} catch (ClassNotFoundException | SQLException e) {
+			SystemLog.printLog("HwSql getStuList sqlerr");
 			e.printStackTrace();
 		}
 		return stuList;
@@ -224,9 +235,9 @@ public class HwSql {
 			String insertQuery = "INSERT INTO t_hw_class_inf "
 					+ "(classId, schoolName, className, teacherId, createTime, modifyTime, startTime, endTime, stt) "
 					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			SystemLog.printLog("HwSql addClass insertQuery |" + insertQuery);
 			PreparedStatement preparedStatement = sc.getConnection().prepareStatement(insertQuery);
 			// 设置参数值
-
 			preparedStatement.setString(1, classId); // 班级唯一ID 随机创建
 			preparedStatement.setString(2, schoolName); // 学校名称 输入
 			preparedStatement.setString(3, className); // 班级名称 输入
@@ -241,8 +252,8 @@ public class HwSql {
 			resultStt = rowsInserted > 0 ? 0 : 1;
 			sc.closeConn();
 			preparedStatement.close();
-
 		} catch (ClassNotFoundException | SQLException e) {
+			SystemLog.printLog("HwSql addClass sqlerr");
 			e.printStackTrace();
 		}
 		return resultStt;
@@ -260,9 +271,10 @@ public class HwSql {
 		int resultStt = 0;
 		try {
 			SqlCon sc = new SqlCon();
-			String insertQuery = "INSERT INTO t_hw_stu_inf "
-					+ "(studentId, classId, createTime, modifyTime, startTime, endTime, stt) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String insertQuery = "INSERT INTO t_hw_teach_inf "
+					+ "(teacherId, teacherName, telephone, program, classId, createTime, modifyTime, startTime, endTime, stt) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			SystemLog.printLog("HwSql addTeacher insertQuery |" + insertQuery);
 			PreparedStatement preparedStatement = sc.getConnection().prepareStatement(insertQuery);
 			preparedStatement.setString(1, teacherId); // 学校名称 输入
 			preparedStatement.setString(2, teacherName); // 班级名称 输入
@@ -274,13 +286,13 @@ public class HwSql {
 			preparedStatement.setString(8, HwUtils.timeMaker("semeStart")); // 开始时间
 			preparedStatement.setString(9, HwUtils.timeMaker("semeEnd")); // 结束时间
 			preparedStatement.setString(10, "1");
-
 			// 执行 插入数据1成功0失败
 			int rowsInserted = preparedStatement.executeUpdate();
 			resultStt = rowsInserted > 0 ? 0 : 1;
 			sc.closeConn();
 			preparedStatement.close();
 		} catch (ClassNotFoundException | SQLException e) {
+			SystemLog.printLog("HwSql addTeacher sqlerr");
 			e.printStackTrace();
 			resultStt = 1;
 		}
@@ -298,7 +310,8 @@ public class HwSql {
 			SqlCon sc = new SqlCon();
 			String insertQuery = "INSERT INTO t_hw_stu_inf "
 					+ "(studentId, classId, createTime, modifyTime, startTime, endTime, stt) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+			SystemLog.printLog("HwSql addStudent insertQuery |" + insertQuery);
 			PreparedStatement preparedStatement = sc.getConnection().prepareStatement(insertQuery);
 			preparedStatement.setString(1, studentId); // 学校名称 输入
 			preparedStatement.setString(2, classId); // 班级名称 输入
@@ -312,8 +325,8 @@ public class HwSql {
 			resultStt = rowsInserted > 0 ? 0 : 1;
 			sc.closeConn();
 			preparedStatement.close();
-
 		} catch (ClassNotFoundException | SQLException e) {
+			SystemLog.printLog("HwSql addStudent sqlerr");
 			e.printStackTrace();
 		}
 		return resultStt;
@@ -328,7 +341,8 @@ public class HwSql {
 		int resultStt = 0;
 		try {
 			SqlCon sc = new SqlCon();
-			String delSql = "DELETE FROM t_hw_class_inf WHERE classId ='" + classId + "'";;
+			String delSql = "DELETE FROM t_hw_class_inf WHERE classId ='" + classId + "'";
+			SystemLog.printLog("HwSql delClass delSql |" + delSql);
 			PreparedStatement preparedStatement = sc.getConnection().prepareStatement(delSql);
 			// 执行 插入数据1成功0失败
 			int rowsInserted = preparedStatement.executeUpdate();
@@ -336,6 +350,7 @@ public class HwSql {
 			sc.closeConn();
 			preparedStatement.close();
 		} catch (ClassNotFoundException | SQLException e) {
+			SystemLog.printLog("HwSql delClass sqlerr");
 			e.printStackTrace();
 			resultStt = 1;
 		}

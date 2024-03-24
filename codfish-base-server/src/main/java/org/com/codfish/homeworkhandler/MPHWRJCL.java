@@ -1,13 +1,9 @@
 package org.com.codfish.homeworkhandler;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.com.codfish.common.SnowflakeIdGenerator;
-import org.com.codfish.common.SqlCon;
+import org.com.codfish.common.SystemLog;
 import org.com.codfish.servlet.ErrReturnObj;
 
 import com.google.gson.Gson;
@@ -25,12 +21,14 @@ public class MPHWRJCL {
 		List<ObjClass> classList = HwSql.getClassListByName(apiInput.getSchoolName(), apiInput.getClassName());
 		if (classList == null) {
 			HwHttps.hwHttpResponeErr(response);
+			SystemLog.printLog("MPHWRJCL.run|HwSql.getClassListByName result null");
 			return;
 		}
 		if (classList.size() > 0) {
 			String errCode = "SERV0001";
 			String ErrMsg = "班级重复注册";
 			HwHttps.hwHttpResponeErr(response, errCode, ErrMsg);
+			SystemLog.printLog("MPHWRJCL.run|HwSql.getClassListByName result classList > 5");
 			return;
 		}
 
@@ -38,12 +36,14 @@ public class MPHWRJCL {
 		List<ObjClass> teachClassList = HwSql.getClassListByTeacherId(apiInput.getTeacherId());
 		if (teachClassList == null) {
 			HwHttps.hwHttpResponeErr(response);
+			SystemLog.printLog("MPHWRJCL.run|HwSql.getClassListByTeacherId result null");
 			return;
 		}
 		if (teachClassList.size() >= 5) { // 一个老师不允许加入超过5个班级
 			String errCode = "SERV000";
 			String ErrMsg = "加入班级失败，课程数量超过5";
 			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
+			SystemLog.printLog("MPHWRJCL.run| teachClassList.size > 5");
 			return;
 		}
 		// 创建班级
@@ -53,6 +53,7 @@ public class MPHWRJCL {
 		int addClassResult = HwSql.addClass(tempClassId, apiInput.getSchoolName(), apiInput.getClassName(), apiInput.getTeacherId());
 		if (addClassResult == 1) {
 			HwHttps.hwHttpResponeErr(response);
+			SystemLog.printLog("MPHWRJCL.run| HwSql.addClass err");
 			return;
 		}
 		// 创建班级的老师插入老师的列表
@@ -65,9 +66,11 @@ public class MPHWRJCL {
 			Gson gson = new Gson();
 			String jsonStr = gson.toJson(err);
 			HwHttps.hwHttpRespone(response, jsonStr);
+			SystemLog.printLog("MPHWRJCL.run| HwSql.addTeacher success");
 		} else {
+			HwSql.delClass(tempClassId); // 班级注册失败需要回滚
 			HwHttps.hwHttpResponeErr(response);
-			//TODO 创建班级成功，但是加入老师失败，需要回滚，存在bug 老师加入班级数量不够但是可以通过创建班级来无限增加
+			SystemLog.printLog("MPHWRJCL.run| HwSql.addTeacher err");
 			return;
 		}
 	}

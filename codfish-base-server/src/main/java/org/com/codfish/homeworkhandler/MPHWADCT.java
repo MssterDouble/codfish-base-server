@@ -2,6 +2,8 @@ package org.com.codfish.homeworkhandler;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import org.com.codfish.common.SystemLog;
 import org.com.codfish.servlet.ErrReturnObj;
 import com.google.gson.Gson;
 
@@ -16,16 +18,18 @@ public class MPHWADCT {
 		
 		// 加入的班级状态不正常，不允许注册
 		List<ObjClass> classSttList = HwSql.getClassListByClassId(apiInput.getClassId());
-		if (classSttList == null) {
+		if (classSttList.size() <= 0) {
 			HwHttps.hwHttpResponeErr(response);
+			SystemLog.printLog("MPHWADCS.run| HwSql.getClassListByClassId targetClass not found");
 			return ;
 		}
-		if (classSttList.size() == 0) { 
-			String errCode = "SERV0005";
-			String ErrMsg = "加入班级失败，班级不存在";
-			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
-			return;
-		}
+//		if (classSttList.size() == 0) { 
+//			String errCode = "SERV0005";
+//			String ErrMsg = "加入班级失败，班级不存在";
+//			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
+//			SystemLog.printLog("MPHWADCS.run| classSttList = 0");
+//			return;
+//		}
 		
 		// 查询课程是否已经注册
 		String queryTeacherList = "SELECT * FROM t_hw_teach_inf WHERE " 
@@ -34,28 +38,33 @@ public class MPHWADCT {
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'>=startTime" 
 				+ " AND '" + HwUtils.timeMaker("currentDate") + "'<=endTime" 
 				+ " AND stt='1';";
+		SystemLog.printLog("MPHWADCS.run| queryTeacherList querySql" + queryTeacherList);
 		List<ObjTeacher> progList = HwSql.getTeachList(queryTeacherList);
-		if (progList == null) {
-			HwHttps.hwHttpResponeErr(response);
-			return ;
-		}
+//		if (progList == null) {
+//			HwHttps.hwHttpResponeErr(response);
+//			SystemLog.printLog("MPHWADCS.run| HwSql.getTeachList result null");
+//			return ;
+//		}
 		if (progList.size() > 0) {
 			String errCode = "SERV0006";
 			String ErrMsg = "加入班级失败，课程已注册";
 			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
+			SystemLog.printLog("MPHWADCS.run| progList.size > 0");
 			return;
 		}
 		
 		// 查询老师已经加入的班级数量
 		List<ObjClass> teachClassList = HwSql.getClassListByTeacherId(apiInput.getTeacherId());
-		if (teachClassList == null) {
-			HwHttps.hwHttpResponeErr(response);
-			return;
-		}
+//		if (teachClassList == null) {
+//			HwHttps.hwHttpResponeErr(response);
+//			SystemLog.printLog("MPHWADCS.run| HwSql.getClassListByTeacherId result null");
+//			return;
+//		}
 		if (teachClassList.size() >= 5) { // 一个老师不允许加入超过5个班级
 			String errCode = "SERV000";
 			String ErrMsg = "加入班级失败，课程数量超过5";
 			HwHttps.hwHttpResponeErr(response,errCode,ErrMsg);
+			SystemLog.printLog("MPHWADCS.run| teachClassList.size > 5");
 			return;
 		}
 
@@ -68,8 +77,10 @@ public class MPHWADCT {
 			Gson gson = new Gson();
 			String jsonStr = gson.toJson(err);
 			HwHttps.hwHttpRespone(response, jsonStr);
+			SystemLog.printLog("MPHWADCS.run| HwSql.addTeacher success");
 		} else {
 			HwHttps.hwHttpResponeErr(response);
+			SystemLog.printLog("MPHWADCS.run| HwSql.addTeacher err");
 		}
 	}
 	
